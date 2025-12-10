@@ -1,7 +1,5 @@
 ---
-# 📄 **README.md – Projekt M346: Face Recognition Service (AWS Lambda, C#)**
-
-## 🧩 **Projektbeschreibung**
+# 🧩 **Projektbeschreibung**
 
 Dieses Projekt implementiert einen cloudbasierten Face-Recognition-Service, der automatisch Personen auf Bildern erkennt.
 Beim Hochladen eines Bildes in einen S3-Bucket wird eine C#-AWS-Lambda-Funktion ausgelöst, die das Bild mittels **Amazon Rekognition** analysiert und die erkannten Personen als **JSON-Datei** in einem separaten Output-Bucket speichert.
@@ -244,7 +242,5 @@ Dieses Projekt erfüllt alle Anforderungen der Aufgabenstellung vollständig:
 - Saubere Dokumentation
 - Professionelle Repository-Struktur
 - Hoher Eigenanteil und technische Kompetenz
-
-**A1–A7, B1–B3 sowie Dokumentationsblock C sind erfüllt und geben klar die Gütestufe 3.**
 
 ---
