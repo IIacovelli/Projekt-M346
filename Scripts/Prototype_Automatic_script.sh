@@ -1,6 +1,35 @@
 #!/bin/bash
 set -e
 
+# --- SAFE APT LOCK HANDLER ---
+wait_for_apt() {
+    echo "Prüfe APT-Locks ..."
+
+    # Wait until lock is free (max 60s)
+    TIMEOUT=60
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+        if [ $TIMEOUT -le 0 ]; then
+            echo "APT-Lock hängt fest. Beende blockierende Prozesse..."
+            
+            # Kill unattended-upgrades safely
+            sudo systemctl stop unattended-upgrades || true
+            sudo killall unattended-upgrade || true
+            
+            sudo rm -f /var/lib/dpkg/lock-frontend
+            sudo rm -f /var/cache/apt/archives/lock
+            
+            sudo dpkg --configure -a || true
+            break
+        fi
+
+        echo "APT ist gesperrt. Warte... ($TIMEOUT s)"
+        sleep 2
+        TIMEOUT=$((TIMEOUT-2))
+    done
+
+    echo "APT-Lock frei. Weiter geht's."
+}
+
 echo "Starte vollständige automatische Installation ..."
 
 #############################################
@@ -19,6 +48,7 @@ echo "Installiere benötigte Pakete ..."
 if ! command -v git &> /dev/null
 then
     echo "Installiere Git..."
+    wait_for_apt
     sudo apt install git -y
 else
     echo "Git bereits installiert."
@@ -28,6 +58,7 @@ fi
 if ! command -v dotnet &> /dev/null
 then
     echo "Installiere .NET 8 SDK..."
+    wait_for_apt
     sudo apt install dotnet-sdk-8.0 -y
 else
     echo ".NET bereits installiert."
@@ -37,6 +68,7 @@ fi
 if ! command -v aws &> /dev/null
 then
     echo "Installiere AWS CLI..."
+    wait_for_apt
     sudo apt install awscli -y
 else
     echo "AWS CLI bereits installiert."
@@ -46,11 +78,11 @@ fi
 if ! command -v dotnet-lambda &> /dev/null
 then
     echo "Installiere AWS Lambda .NET Tools..."
+    wait_for_apt
     dotnet tool install -g Amazon.Lambda.Tools
 else
     echo "AWS Lambda Tools bereits installiert."
 fi
-
 
 #############################################
 # 3) CHECK AWS CONFIG
@@ -72,7 +104,7 @@ PROJECT_FOLDER="Projekt-M346"
 
 if [ ! -d "$PROJECT_FOLDER" ]; then
     echo "Klone Repository..."
-    git clone <https://github.com/Marcos-dotcom1/Projekt-M346.git> Projekt-M346
+    git clone https://github.com/Marcos-dotcom1/Projekt-M346.git Projekt-M346
 else
     echo "Projektordner existiert bereits."
 fi
