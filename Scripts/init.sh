@@ -96,13 +96,36 @@ aws lambda add-permission \
 
 # === S3 Trigger setzen ===
 echo "==> Setze S3 Trigger (ObjectCreated → Lambda) ..."
+# Reset (verhindert kaputte/alte Konfigurationen)
 aws s3api put-bucket-notification-configuration \
   --bucket "$IN_BUCKET" \
-  --notification-configuration "{
-    \"LambdaFunctionConfigurations\": [
-      { \"LambdaFunctionArn\": \"$LAMBDA_ARN\", \"Events\": [\"s3:ObjectCreated:*\"] }
-    ]
-  }"
+  --notification-configuration '{}' >/dev/null
+
+# Retry-Funktion (S3/Lambda sind manchmal 1-2s "inkonsistent")
+retry() {
+  local tries="$1"; shift
+  local delay="$1"; shift
+  local n=1
+  until "$@"; do
+    if (( n >= tries )); then return 1; fi
+    echo "  ... Retry $n/$tries in ${delay}s"
+    sleep "$delay"
+    n=$((n+1))
+  done
+}
+
+set_notification() {
+  aws s3api put-bucket-notification-configuration \
+    --bucket "$IN_BUCKET" \
+    --notification-configuration "{
+      \"LambdaFunctionConfigurations\": [
+        { \"LambdaFunctionArn\": \"$LAMBDA_ARN\", \"Events\": [\"s3:ObjectCreated:*\"] }
+      ]
+    }" >/dev/null
+}
+
+retry 6 2 set_notification
+
 
 # === Env-Datei schreiben für test.sh ===
 cat > "$ENV_FILE" <<EOF
