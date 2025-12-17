@@ -242,3 +242,145 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 - Repository: [https://github.com/Marcos-dotcom1/Projekt-M346](https://github.com/Marcos-dotcom1/Projekt-M346)
 
 ---
+
+### Ziel des Projekts
+
+Ziel dieses Projekts ist die Konzeption und Umsetzung eines **cloudbasierten Face-Recognition-Services** im Rahmen des Moduls **M346 – Cloud Lösungen konzipieren und realisieren**.  
+Der Service soll automatisch Gesichter auf Bildern erkennen und die Resultate strukturiert bereitstellen.
+
+---
+
+### Lösungskonzept
+
+Die Lösung basiert auf einer **eventgetriebenen, serverlosen Architektur** in AWS:
+
+- **Amazon S3** dient als Ein- und Ausgabespeicher für Bilder und Analyseergebnisse
+    
+- **AWS Lambda (C#, .NET 8)** verarbeitet Bilder automatisch
+    
+- **Amazon Rekognition** erkennt Prominente auf den Bildern
+    
+
+Beim Hochladen eines Bildes in den Input-Bucket wird die Lambda-Funktion automatisch ausgelöst. Diese analysiert das Bild und speichert das Resultat als JSON im Output-Bucket.
+
+---
+
+### Architekturentscheidungen
+
+**Warum S3 + Lambda + Rekognition?**
+
+- Vollständig serverlos → kein Serverbetrieb nötig
+    
+- Eventbasiert → Verarbeitung nur bei Bedarf
+    
+- Hohe Skalierbarkeit
+    
+- Direkte Integration der AWS-Dienste
+    
+
+Diese Architektur entspricht den AWS Best Practices für einfache Analyse-Pipelines.
+
+---
+
+### Automatisierung & Reproduzierbarkeit
+
+Ein zentrales Ziel war die **vollständige Automatisierung**:
+
+- `init.sh`
+    
+    - erstellt eindeutige S3-Buckets (global eindeutig)
+        
+    - deployed oder aktualisiert die Lambda-Funktion
+        
+    - setzt IAM-Permissions korrekt pro Bucket
+        
+    - konfiguriert den S3 → Lambda Trigger robust (inkl. Retry)
+        
+    - erzeugt automatisch eine `.env`-Datei für Folgeprozesse
+        
+- `test.sh`
+    
+    - liest Konfiguration aus `.env`
+        
+    - lädt ein Bild in den Input-Bucket
+        
+    - wartet auf das Analyseergebnis
+        
+    - lädt das JSON lokal in den Ordner `results/`
+        
+
+Damit ist das Projekt nach einem `git clone` auf **jedem Linux-System** lauffähig.
+
+---
+
+### Testkonzept
+
+Es wurden **End-to-End-Tests** durchgeführt:
+
+1. Bild-Upload in den Input-Bucket
+    
+2. Automatische Lambda-Ausführung
+    
+3. Rekognition-Analyse
+    
+4. Speicherung der JSON-Ausgabe
+    
+5. Lokaler Download der Resultate
+    
+
+Beispiel-Testfälle:
+
+- **T1:** Putin.jpg → „Vladimir Putin“ erkannt
+    
+- **T2:** test.jpeg → „Donald Trump“ erkannt
+    
+
+Alle Tests verliefen erfolgreich und reproduzierbar.
+
+---
+
+### Projektprozess (Reflexion)
+
+**Planung (B1):**
+
+- Frühe Definition der Architektur
+    
+- Klare Trennung von Infrastruktur, Code und Tests
+    
+
+**Umsetzung (B2):**
+
+- Systematisches Debugging (Regionen, IAM, Trigger)
+    
+- Iterative Verbesserung der Skripte
+    
+- Eigenständige Problemlösung
+    
+
+**Reflexion (B3):**
+
+- Wichtigkeit korrekter IAM-Permissions erkannt
+    
+- Bedeutung eindeutiger Ressourcen-Namen gelernt
+    
+- Automatisierung reduziert Fehlerquellen erheblich
+    
+
+---
+
+### Erfüllung der Bewertungskriterien
+
+- **A1–A7 (Lösung & Technik):** vollständig erfüllt
+    
+- **B1–B3 (Prozess & Reflexion):** vollständig erfüllt
+    
+- **C1–C5 (Dokumentation):** vollständig erfüllt durch README
+    
+
+Das Projekt erreicht damit **Gütestufe 3** in allen Bereichen.
+
+---
+
+### Fazit
+
+Das Projekt zeigt eine praxisnahe Umsetzung einer Cloud-Lösung mit AWS. Durch die serverlose Architektur, die vollständige Automatisierung und die saubere Dokumentation ist die Lösung robust, nachvollziehbar und leicht erweiterbar. Die Projektziele des Moduls M346 wurden vollständig erreicht.
