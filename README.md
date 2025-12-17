@@ -236,6 +236,8 @@ export PATH="$PATH:$HOME/.dotnet/tools"
 
 ---
 
+# 📘 Projektdokumentation (M346)
+
 ## Autoren
 
 - Projektarbeit Modul **M346 – Cloud Lösungen konzipieren und realisieren**
@@ -364,7 +366,6 @@ Alle Tests verliefen erfolgreich und reproduzierbar.
 - Bedeutung eindeutiger Ressourcen-Namen gelernt
     
 - Automatisierung reduziert Fehlerquellen erheblich
-    
 
 ---
 
@@ -375,9 +376,6 @@ Alle Tests verliefen erfolgreich und reproduzierbar.
 - **B1–B3 (Prozess & Reflexion):** vollständig erfüllt
     
 - **C1–C5 (Dokumentation):** vollständig erfüllt durch README
-    
-
-Das Projekt erreicht damit **Gütestufe 3** in allen Bereichen.
 
 ---
 
